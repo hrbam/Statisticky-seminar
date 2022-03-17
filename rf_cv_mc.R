@@ -1,4 +1,5 @@
 library(randomForest)
+library(parallel)
 data(LetterRecognition, package = "mlbench")
 set.seed(seed = 123, "L'Ecuyer-CMRG")
 
@@ -11,33 +12,33 @@ test = LetterRecognition[i_test, ]
 ntree = 200
 nfolds = 10
 mtry_val = 1:(ncol(train) - 1)
-folds = sample( rep_len(1:nfolds, nrow(train)), nrow(train) )
+folds = sample( rep_len(1:nfolds, nrow(train)), nrow(train) )                   #each observation randomly put into one of  1:10 folds
 cv_df = data.frame(mtry = mtry_val, incorrect = rep(0, length(mtry_val)))
-cv_pars = expand.grid(mtry = mtry_val, f = 1:nfolds)
+cv_pars = expand.grid(mtry = mtry_val, f = 1:nfolds)                            #table that combines all combination of folds and mtry
 fold_err = function(i, cv_pars, folds, train) {
-  mtry = cv_pars[i, "mtry"]
-  fold = (folds == cv_pars[i, "f"])
-  rf.all = randomForest(lettr ~ ., train[!fold, ], ntree = ntree,
+  mtry = cv_pars[i, "mtry"]                                                     #given i - which mtry I will use
+  fold = (folds == cv_pars[i, "f"])                                             #given i I will use fold(i) - this gives all rows from train data that are in fold i
+  rf.all = randomForest(lettr ~ ., train[!fold, ], ntree = ntree,               #random forest No.1
                         mtry = mtry, norm.votes = FALSE)
-  pred = predict(rf.all, train[fold, ])
-  sum(pred != train$lettr[fold])
+  pred = predict(rf.all, train[fold, ])                                         #prediction on fold data given the random forest
+  sum(pred != train$lettr[fold])                                                #prediction error
 }
 
-nc = as.numeric(commandArgs(TRUE)[1])
+nc = as.numeric(commandArgs(TRUE)[1])                                           #setting n.cores
 cat("Running with", nc, "cores\n")
 system.time({
   cv_err = parallel::mclapply(1:nrow(cv_pars), fold_err, cv_pars, folds = folds,
-                              train = train, mc.cores = nc) 
-  err = tapply(unlist(cv_err), cv_pars[, "mtry"], sum)
+                              train = train, mc.cores = nc)                     #do fold_err for each combination of fold (1:10 groups) and mtry (1:16 branches for forest)                   
+  err = tapply(unlist(cv_err), cv_pars[, "mtry"], sum)                          #number of wrong predictions for each mtry (sum over all different folds))
 })
 pdf(paste0("rf_cv_mc", nc, ".pdf")); plot(mtry_val, err/(n - n_test)); dev.off()
 
-rf.all = randomForest(lettr ~ ., train, ntree = ntree)
+rf.all = randomForest(lettr ~ ., train, ntree = ntree)                          #random forest No.2 - this random forest we have to parallelize
 pred = predict(rf.all, test)
 correct = sum(pred == test$lettr)
 
 mtry = mtry_val[which.min(err)]
-rf.all = randomForest(lettr ~ ., train, ntree = ntree, mtry = mtry)
+rf.all = randomForest(lettr ~ ., train, ntree = ntree, mtry = mtry)             #random forest No.3 - this random forest we have to parallelize
 pred_cv = predict(rf.all, test)
 correct_cv = sum(pred_cv == test$lettr)
 cat("Proportion Correct: ", correct/n_test, "(mtry = ", floor((ncol(test) - 1)/3),
