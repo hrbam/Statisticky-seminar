@@ -1,1 +1,1 @@
-# -tatistick-semin-r
+# Statisticky-seminar
