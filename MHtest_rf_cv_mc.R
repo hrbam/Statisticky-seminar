@@ -35,7 +35,7 @@ system.time({
                               train = train, mc.cores = nc)                     #do fold_err for each combination of fold (1:10 groups) and mtry (1:16 branches for forest)                   
   err = tapply(unlist(cv_err), cv_pars[, "mtry"], sum)                          #number of wrong predictions for each mtry (sum over all different folds))
 })
-#pdf(paste0("rf_cv_mc", nc, ".pdf")); plot(mtry_val, err/(n - n_test)); dev.off()
+pdf(paste0("rf_cv_mc", nc, ".pdf")); plot(mtry_val, err/(n - n_test)); dev.off()
 
 #rf.all = randomForest(lettr ~ ., train, ntree = ntree)                          #random forest No.2 - this random forest we have to parallelize
 ntree = lapply(splitIndices(500, nc), length)
@@ -47,7 +47,11 @@ pred = predict(rf.all, test)
 correct = sum(pred == test$lettr)
 
 mtry = mtry_val[which.min(err)]
-rf.all = randomForest(lettr ~ ., train, ntree = ntree, mtry = mtry)             #random forest No.3 - this random forest we have to parallelize
+#rf.all = randomForest(lettr ~ ., train, ntree = ntree, mtry = mtry)             #random forest No.3 - this random forest we have to parallelize
+rf2 = function(x) randomForest(lettr ~ ., train, ntree=x, mtry = mtry, norm.votes = FALSE)
+rf.out = mclapply(ntree, rf2, mc.cores = nc)
+rf.all = do.call(combine, rf.out)
+
 pred_cv = predict(rf.all, test)
 correct_cv = sum(pred_cv == test$lettr)
 cat("Proportion Correct: ", correct/n_test, "(mtry = ", floor((ncol(test) - 1)/3),
