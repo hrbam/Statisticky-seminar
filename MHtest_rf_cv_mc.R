@@ -43,8 +43,8 @@ rf = function(x) randomForest(lettr ~ ., train, ntree=x, norm.votes = FALSE)
 rf.out = mclapply(ntree, rf, mc.cores = nc)
 rf.all = do.call(combine, rf.out)
 
-#pred = predict(rf.all, test)
-#correct = sum(pred == test$lettr)
+pred = predict(rf.all, test)
+correct = sum(pred == test$lettr)
 
 mtry = mtry_val[which.min(err)]
 rf.all = randomForest(lettr ~ ., train, ntree = ntree, mtry = mtry)             #random forest No.3 - this random forest we have to parallelize
