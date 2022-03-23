@@ -29,7 +29,7 @@ fold_err = function(i, cv_pars, folds, train) {
 }
 
 nc = as.numeric(commandArgs(TRUE)[1])                                           #setting n.cores
-cat("MH test Running with", nc, "cores\n")
+cat("MH test: Running with", nc, "cores\n")
 system.time({
   cv_err = parallel::mclapply(1:nrow(cv_pars), fold_err, cv_pars, folds = folds,
                               train = train, mc.cores = nc)                     #do fold_err for each combination of fold (1:10 groups) and mtry (1:16 branches for forest)                   
