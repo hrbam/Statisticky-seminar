@@ -5,7 +5,7 @@
 #PBS -e rf.e
 #PBS -o rf.o
 
-cd Statisticky-seminar
+cd ~/Statisticky-seminar
 pwd
 
 module load R
