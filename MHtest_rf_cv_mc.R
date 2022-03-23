@@ -9,6 +9,10 @@ i_test = sample.int(n, n_test)
 train = LetterRecognition[-i_test, ]
 test = LetterRecognition[i_test, ]
 
+<<<<<<< HEAD:rf_cv_mc_testMH.R
+
+=======
+>>>>>>> 481613bf042f32c165e465bde7c249b233dcc85c:MHtest_rf_cv_mc.R
 ntree = 200
 nfolds = 10
 mtry_val = 1:(ncol(train) - 1)
@@ -31,9 +35,14 @@ system.time({
                               train = train, mc.cores = nc)                     #do fold_err for each combination of fold (1:10 groups) and mtry (1:16 branches for forest)                   
   err = tapply(unlist(cv_err), cv_pars[, "mtry"], sum)                          #number of wrong predictions for each mtry (sum over all different folds))
 })
-pdf(paste0("rf_cv_mc", nc, ".pdf")); plot(mtry_val, err/(n - n_test)); dev.off()
+#pdf(paste0("rf_cv_mc", nc, ".pdf")); plot(mtry_val, err/(n - n_test)); dev.off()
 
-rf.all = randomForest(lettr ~ ., train, ntree = ntree)                          #random forest No.2 - this random forest we have to parallelize
+#rf.all = randomForest(lettr ~ ., train, ntree = ntree)                          #random forest No.2 - this random forest we have to parallelize
+ntree = lapply(splitIndices(500, nc), length)
+rf = function(x) randomForest(lettr ~ ., train, ntree=x, norm.votes = FALSE)
+rf.out = mclapply(ntree, rf, mc.cores = nc)
+rf.all = do.call(combine, rf.out)
+
 pred = predict(rf.all, test)
 correct = sum(pred == test$lettr)
 
