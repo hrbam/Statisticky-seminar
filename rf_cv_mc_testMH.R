@@ -9,7 +9,6 @@ i_test = sample.int(n, n_test)
 train = LetterRecognition[-i_test, ]
 test = LetterRecognition[i_test, ]
 
-##
 
 ntree = 200
 nfolds = 10
@@ -35,9 +34,14 @@ system.time({
 })
 pdf(paste0("rf_cv_mc", nc, ".pdf")); plot(mtry_val, err/(n - n_test)); dev.off()
 
-rf.all = randomForest(lettr ~ ., train, ntree = ntree)                          #random forest No.2 - this random forest we have to parallelize
-pred = predict(rf.all, test)
-correct = sum(pred == test$lettr)
+#rf.all = randomForest(lettr ~ ., train, ntree = ntree)                          #random forest No.2 - this random forest we have to parallelize
+ntree = lapply(splitIndices(500, nc), length)
+rf = function(x) randomForest(lettr ~ ., train, ntree=x, norm.votes = FALSE)
+rf.out = mclapply(ntree, rf, mc.cores = nc)
+rf.all = do.call(combine, rf.out)
+
+#pred = predict(rf.all, test)
+#correct = sum(pred == test$lettr)
 
 mtry = mtry_val[which.min(err)]
 rf.all = randomForest(lettr ~ ., train, ntree = ntree, mtry = mtry)             #random forest No.3 - this random forest we have to parallelize
