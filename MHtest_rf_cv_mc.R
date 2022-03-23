@@ -9,7 +9,10 @@ i_test = sample.int(n, n_test)
 train = LetterRecognition[-i_test, ]
 test = LetterRecognition[i_test, ]
 
+<<<<<<< HEAD:rf_cv_mc_testMH.R
 
+=======
+>>>>>>> 481613bf042f32c165e465bde7c249b233dcc85c:MHtest_rf_cv_mc.R
 ntree = 200
 nfolds = 10
 mtry_val = 1:(ncol(train) - 1)
