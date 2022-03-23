@@ -35,7 +35,7 @@ system.time({
                               train = train, mc.cores = nc)                     #do fold_err for each combination of fold (1:10 groups) and mtry (1:16 branches for forest)                   
   err = tapply(unlist(cv_err), cv_pars[, "mtry"], sum)                          #number of wrong predictions for each mtry (sum over all different folds))
 })
-pdf(paste0("rf_cv_mc", nc, ".pdf")); plot(mtry_val, err/(n - n_test)); dev.off()
+#pdf(paste0("rf_cv_mc", nc, ".pdf")); plot(mtry_val, err/(n - n_test)); dev.off()
 
 #rf.all = randomForest(lettr ~ ., train, ntree = ntree)                          #random forest No.2 - this random forest we have to parallelize
 ntree = lapply(splitIndices(500, nc), length)
