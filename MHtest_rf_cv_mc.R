@@ -51,7 +51,7 @@ correct <- sum(pred == test$lettr)
 mtry = mtry_val[which.min(err)]
 #rf.all = randomForest(lettr ~ ., train, ntree = ntree, mtry = mtry)             #random forest No.3 - this random forest we have to parallelize
 rfp2 = function(x) randomForest(lettr ~ ., train, ntree=x, mtry = mtry, norm.votes = FALSE)
-rf.out = mclapply(ntree, rfp2, mc.cores = nc)
+rf.out = mclapply(ntreep, rfp2, mc.cores = nc)
 rf.all = do.call(combine, rf.out)
 
 pred_cv = predict(rf.all, test)
