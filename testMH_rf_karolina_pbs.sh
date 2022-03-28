@@ -15,14 +15,16 @@ echo "loaded R"
 #time Rscript rf_cv_mc.R 8
 #time Rscript rf_cv_mc.R 16
 #time Rscript rf_cv_mc.R 32
-time Rscript rf_cv_mc.R 64
+#time Rscript rf_cv_mc.R 64
 time Rscript rf_cv_mc.R 128
+time Rscript rf_cv_mc.R 256
 
-#time Rscript MHtest_rf_cv_mc.R 8
-#time Rscript MHtest_rf_cv_mc.R 16
-#time Rscript MHtest_rf_cv_mc.R 32
-time Rscript MHtest_rf_cv_mc.R 64
-time Rscript MHtest_rf_cv_mc.R 128
+#time Rscript EX4_testMH.R 8
+#time Rscript EX4_testMH.R 16
+#time Rscript EX4_testMH.R 32
+#time Rscript EX4_testMH.R 64
+time Rscript EX4_testMH.R 128
+time Rscript EX4_testMH.R 256
 
 #time Rscript rf_mc.r 16
 #time Rscript rf_mc.r 32
