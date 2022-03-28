@@ -35,18 +35,23 @@ system.time({
 #pdf(paste0("rf_cv_mc", nc, ".pdf")); plot(mtry_val, err/(n - n_test)); dev.off()
 
 #rf.all = randomForest(lettr ~ ., train, ntree = ntree)                          #random forest No.2 - this random forest we have to parallelize
-ntreep = lapply(splitIndices(200, nc), length)
-rf = function(x) randomForest(lettr ~ ., train, ntree=x, norm.votes = FALSE)
-rf.out = mclapply(ntreep, rf, mc.cores = nc)
+ntreep = lapply(splitIndices(ntree, nc), length)
+rfp = function(x) randomForest(lettr ~ ., train, ntree=x, norm.votes = FALSE)
+rf.out = mclapply(ntreep, rfp, mc.cores = nc)
 rf.all = do.call(combine, rf.out)
 
-pred = predict(rf.all, test)
-correct = sum(pred == test$lettr)
+#pred = predict(rf.all, test)
+crows = splitIndices(nrow(test), nc) 
+predp = function(x) predict(rf.all, test[x, ])
+cpred = mclapply(crows, predp, mc.cores = nc)
+pred = do.call(c, cpred) 
+
+correct <- sum(pred == test$lettr)
 
 mtry = mtry_val[which.min(err)]
 #rf.all = randomForest(lettr ~ ., train, ntree = ntree, mtry = mtry)             #random forest No.3 - this random forest we have to parallelize
-rf2 = function(x) randomForest(lettr ~ ., train, ntree=x, mtry = mtry, norm.votes = FALSE)
-rf.out = mclapply(ntree, rf2, mc.cores = nc)
+rfp2 = function(x) randomForest(lettr ~ ., train, ntree=x, mtry = mtry, norm.votes = FALSE)
+rf.out = mclapply(ntree, rfp2, mc.cores = nc)
 rf.all = do.call(combine, rf.out)
 
 pred_cv = predict(rf.all, test)
