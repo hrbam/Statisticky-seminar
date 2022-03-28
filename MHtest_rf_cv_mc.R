@@ -54,7 +54,10 @@ rfp2 = function(x) randomForest(lettr ~ ., train, ntree=x, mtry = mtry, norm.vot
 rf.out = mclapply(ntreep, rfp2, mc.cores = nc)
 rf.all = do.call(combine, rf.out)
 
-pred_cv = predict(rf.all, test)
-correct_cv = sum(pred_cv == test$lettr)
+#pred_cv = predict(rf.all, test)
+cpred_cv = mclapply(crows, predp, mc.cores = nc)
+pred_cv = do.call(c, cpred_cv) 
+
+correct_cv <- sum(pred_cv == test$lettr)
 cat("Proportion Correct: ", correct/n_test, "(mtry = ", floor((ncol(test) - 1)/3),
     ") with cv:", correct_cv/n_test, "(mtry = ", mtry, ")\n", sep = "")
